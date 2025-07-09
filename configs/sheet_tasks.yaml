@@ -10,4 +10,3 @@ PD:
   prompt: prompts/extract_subject_info.txt
   keys:
     Tmax: string
-    Dosage: string
