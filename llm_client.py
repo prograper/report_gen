@@ -1,5 +1,5 @@
 # llm_client.py
-import os, yaml, openai
+import os, yaml, openai # type: ignore
 from pathlib import Path
 
 _CFG = yaml.safe_load(Path("configs/llm.yaml").read_text(encoding="utf-8"))

@@ -3,7 +3,7 @@
 兼容任何遵循 OpenAI Chat Completion & Function-Calling 协议的 LLM。
 """
 
-import os, sys, yaml, pandas as pd
+import os, sys, yaml, pandas as pd # type: ignore
 from pathlib import Path
 from docx import Document
 from agents.registry import get_extractor
