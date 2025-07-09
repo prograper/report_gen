@@ -1,2 +1,2 @@
 根据如下PK相关数据，对受试者在复用药物之后，尿液排泄情况进行一个总结。
-Tmax={{T_max}}, Dosage(给药剂量)={{Dosage}}
+Tmax={{Tmax}}, Dosage(给药剂量)={{Dosage}}

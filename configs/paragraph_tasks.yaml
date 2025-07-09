@@ -4,7 +4,7 @@ IntroParagraph:
   prompt: prompts/gen_intro.txt
 
 MethodParagraph:
-  keys: [T_max, Dosage]
+  keys: [Tmax, Dosage]
   prompt: prompts/gen_method.txt
 
 # StabilityParagraph:

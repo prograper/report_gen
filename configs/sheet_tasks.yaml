@@ -9,5 +9,5 @@ PK_1:
 PD:
   prompt: prompts/extract_subject_info.txt
   keys:
-    T_max: string
+    Tmax: string
     Dosage: string

@@ -3,7 +3,7 @@
 兼容任何遵循 OpenAI Chat Completion & Function-Calling 协议的 LLM。
 """
 
-import os, sys, yaml, pandas as pd # type: ignore
+import os, sys, yaml, pandas as pd
 from pathlib import Path
 from docx import Document
 from agents.registry import get_extractor
@@ -80,8 +80,8 @@ def run_pipeline(excel_path: str, out_doc: str):
 
 # ───── CLI ──────────────────────────────────────────────
 if __name__ == "__main__":
-    # if "OPENAI_API_KEY" not in os.environ:
-    #     sys.exit("✗ 请先 export OPENAI_API_KEY=sk-...")
+    if "DASHSCOPE_API_KEY" not in os.environ:
+        sys.exit("✗ 请先 set DASHSCOPE_API_KEY=sk-...")
     import argparse
     ap = argparse.ArgumentParser(description="药学报告流水线")
     ap.add_argument("excel", help="原始 Excel 路径")
