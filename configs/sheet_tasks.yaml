@@ -1,0 +1,13 @@
+# 每张 sheet：keys + 专属抽取 prompt
+PK_1:
+  prompt: prompts/extract_pk_params.txt
+  keys:
+    C_max: string
+    T_max: string
+    t_1_2: string
+
+PD:
+  prompt: prompts/extract_subject_info.txt
+  keys:
+    T_max: string
+    Dosage: string

@@ -1,0 +1,5 @@
+pandas
+pyyaml
+jinja2
+python-docx
+openai>=1.14

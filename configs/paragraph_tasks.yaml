@@ -1,0 +1,12 @@
+# 定义要生成的段落
+IntroParagraph:
+  keys: [C_max, T_max, t_1_2]
+  prompt: prompts/gen_intro.txt
+
+MethodParagraph:
+  keys: [T_max, Dosage]
+  prompt: prompts/gen_method.txt
+
+# StabilityParagraph:
+#   keys: [age, weight]
+#   prompt: prompts/gen_stability.txt
