@@ -2,7 +2,8 @@ from pathlib import Path
 import json, os, pandas as pd
 from jinja2 import Template
 from agents.registry import register_extractor
-from llm_client import apply_provider          # ← 取 client、model
+# ← 取 client、model
+from llm_client import apply_provider
 
 TYPE_MAP = {
     "number": {"type": "number"},
@@ -25,7 +26,8 @@ class GenericExtractor:
         self.keys        = keys
         self.prompt_path = Path(prompt_path)
         provider         = provider or os.getenv("LLM_PROVIDER", "openai")
-        self.client, self.model_name = apply_provider(provider)   # 👈 获取 client
+        # 👈 获取 client
+        self.client, self.model_name = apply_provider(provider)
 
     # ---------- helpers ----------
     def _build_schema(self):

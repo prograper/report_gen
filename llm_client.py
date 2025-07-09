@@ -1,9 +1,10 @@
 # llm_client.py
-import os, yaml, openai # type: ignore
+import os, yaml, openai
 from pathlib import Path
 
 _CFG = yaml.safe_load(Path("configs/llm.yaml").read_text(encoding="utf-8"))
-_clients: dict[str, tuple[openai.OpenAI, str]] = {}   # provider → (client, model_name)
+# provider → (client, model_name)
+_clients: dict[str, tuple[openai.OpenAI, str]] = {}
 
 def apply_provider(name: str = "openai") -> tuple[openai.OpenAI, str]:
     """

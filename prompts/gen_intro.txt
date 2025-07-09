@@ -1,2 +1,2 @@
 请基于以下 PK 参数写一段 50~80 字的中文研究背景：
-Cmax={{ C_max }} ng/mL, Tmax={{ T_max }} h, t_1/2={{t_1_2}}。
+Cmax={{ data.PK_1.C_max }} ng/mL, Tmax={{ data.PK_1.T_max }} h, t_1/2={{data.PK_1.t_1_2}}。

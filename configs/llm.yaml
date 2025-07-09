@@ -1,9 +1,12 @@
 # 支持多家厂商，用 provider 名当顶层键（可按需增删）
 openai:
   model_name:  gpt-4o-mini
-  base_url:    https://api.openai.com/v1       # 不改就留默认
-  key_env:     OPENAI_API_KEY                  # 从环境变量读取
-  extra:       {}                              # OpenAI 还可配 api_type, api_version…
+  # 不改就留默认
+  base_url:    https://api.openai.com/v1
+  # 从环境变量读取
+  key_env:     OPENAI_API_KEY
+  # OpenAI 还可配 api_type, api_version…
+  extra:       {}
 
 azure:
   model_name:  gpt-4o-mini
@@ -17,7 +20,8 @@ qianfan:
   model_name:  ERNIE-Speed
   base_url:    https://aip.baidubce.com/v1
   key_env:     QIANFAN_API_KEY
-  secret_env:  QIANFAN_API_SECRET             # 需要双密钥的就再加一个字段
+  # 需要双密钥的就再加一个字段
+  secret_env:  QIANFAN_API_SECRET
   extra:       {auth_type: baidu}
 
 qwen:

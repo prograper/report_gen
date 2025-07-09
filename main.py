@@ -36,15 +36,28 @@ def write_docx(paragraph_map: dict, out_path: str):
                 break
     doc.save(out_path)
 
+# -------- 路径解析工具 --------
+def resolve(path: str, data: dict):
+    cur = data
+    for part in path.split("."):
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+        else:
+            return None
+    return cur
+
 # ───── 读取配置 ───────────────────────────────────────────
-sheet_cfg   = load_yaml("sheet_tasks.yaml")       # 每张 Sheet 抽取任务
-paragraphs  = load_yaml("paragraph_tasks.yaml")   # 段落生成任务
+# 每张 Sheet 抽取任务
+sheet_cfg   = load_yaml("sheet_tasks.yaml")
+# 段落生成任务
+paragraphs  = load_yaml("paragraph_tasks.yaml")
 placeholder_map = load_yaml("doc_placeholders.yaml")
 
 # ───── Pipeline ─────────────────────────────────────────
 def run_pipeline(excel_path: str, out_doc: str):
     xls = pd.ExcelFile(excel_path)
-    extracted = {}                      # 全局字段仓库
+    # 全局嵌套 {Sheet: {field: val}}
+    extracted = {}
     # 1) 遍历 Sheet 抽取
     for sheet in xls.sheet_names:
         if sheet not in sheet_cfg:
@@ -57,19 +70,31 @@ def run_pipeline(excel_path: str, out_doc: str):
             prompt_path = cfg["prompt"],
             provider = "qwen"
         )
-        extracted.update(extractor.extract())
+        # extracted.update(extractor.extract())
+        # extractor.extract() 仍返回 {"Tmax":..., "Cmax":...}
+        extracted[sheet] = extractor.extract()
 
     # 2) 生成段落
     para_out = {pid: [] for pid in paragraphs}
     for pid, task in paragraphs.items():
         # 取所需字段
-        ctx = {k: extracted.get(k) for k in task["keys"]}
-        if None in ctx.values():
-            print(f"⚠️  段落 {pid} 缺字段，已跳过")
+        # ctx = {k: extracted.get(k) for k in task["keys"]}
+        # if None in ctx.values():
+        #     print(f"⚠️  段落 {pid} 缺字段，已跳过")
+        #     continue
+        # generator = get_generator("GenericParagraphGenerator")(
+        #     prompt_path = task["prompt"],
+        #     context     = ctx,
+
+        # 只做存在性检查；模板里直接通过 data.<Sheet>.<Field> 访问
+        missing = [k for k in task["keys"] if resolve(k, extracted) is None]
+        if missing:
+            print(f"⚠️  段落 {pid} 缺字段 {missing}，已跳过")
             continue
         generator = get_generator("GenericParagraphGenerator")(
             prompt_path = task["prompt"],
-            context     = ctx,
+            # ← 只放一层 data，如果在prompt里不想加data前缀，可以context = extracted
+            context     = {"data": extracted},
             provider = "qwen"
         )
         para_out[pid].append(generator.generate())

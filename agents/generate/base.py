@@ -17,7 +17,12 @@ class GenericParagraphGenerator:
 
     # ---------- core ----------
     def generate(self) -> str:
-        prompt = Template(open(self.prompt_path, encoding="utf-8").read()).render(**self.context)
+        # prompt = Template(open(self.prompt_path, encoding="utf-8").read()).render(**self.context)
+
+        # self.context 现在形如 {"data": {...嵌套...}}
+        prompt = Template(
+            open(self.prompt_path, encoding="utf-8").read()
+        ).render(**self.context)
         resp   = self.client.chat.completions.create(
                     model    = self.model_name,
                     messages = [{"role": "system", "content": prompt}]

@@ -9,4 +9,4 @@ PK_1:
 PD:
   prompt: prompts/extract_subject_info.txt
   keys:
-    Tmax: string
+    T_max: string

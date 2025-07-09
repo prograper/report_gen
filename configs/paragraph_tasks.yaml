@@ -1,10 +1,10 @@
 # 定义要生成的段落
 IntroParagraph:
-  keys: [C_max, T_max, t_1_2]
+  keys: [PK_1.C_max, PK_1.T_max, PK_1.t_1_2]
   prompt: prompts/gen_intro.txt
 
 MethodParagraph:
-  keys: [Tmax]
+  keys: [PD.T_max]
   prompt: prompts/gen_method.txt
 
 # StabilityParagraph:
