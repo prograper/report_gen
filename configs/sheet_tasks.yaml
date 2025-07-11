@@ -1,6 +1,6 @@
 # 每张 sheet：keys + 专属抽取 prompt
 fig_sum:
-  prompt: prompts/extract_pk_params.txt
+  prompt: prompts/extract/extract_pk_params.txt
   keys:
     # 排泄主要发生时间
     main_time_excretion: string
@@ -8,7 +8,7 @@ fig_sum:
     average_time_daily_excretion: string
 
 sum_total:
-  prompt: prompts/extract_subject_info.txt
+  prompt: prompts/extract/extract_subject_info.txt
   keys:
     # 尿液粪便总回收率
     total_recov_rate_urine_feces: string

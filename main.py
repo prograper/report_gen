@@ -11,19 +11,20 @@ from agents.generate import get_generator
 
 # ───── 目录常量 ───────────────────────────────────────────
 ROOT       = Path(__file__).parent
-CFG_DIR    = ROOT / "configs"
+# CFG_DIR    = ROOT / "configs"
+CFG_DIR   = ROOT
 PROMPT_DIR = ROOT / "prompts"
 TPL_DIR    = ROOT / "templates"
 
 # ───── 实用函数 ───────────────────────────────────────────
-def load_yaml(fname: str):
-    with open(CFG_DIR / fname, encoding="utf-8") as f:
+def load_yaml(cfg_dir: str, fname: str):
+    with open(CFG_DIR / cfg_dir / fname, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 def read_prompt(path: str):
     return (ROOT / path).read_text(encoding="utf-8")
 
-def write_docx(paragraph_map: dict, out_path: str):
+def write_docx(placeholder_map: dict, paragraph_map: dict, out_path: str):
     doc = Document(TPL_DIR / "report_template.docx")
     for para_id, texts in paragraph_map.items():
         placeholder = "{{" + placeholder_map[para_id] + "}}"
@@ -46,15 +47,15 @@ def resolve(path: str, data: dict):
             return None
     return cur
 
-# ───── 读取配置 ───────────────────────────────────────────
-# 每张 Sheet 抽取任务
-sheet_cfg   = load_yaml("sheet_tasks.yaml")
-# 段落生成任务
-paragraphs  = load_yaml("paragraph_tasks.yaml")
-placeholder_map = load_yaml("doc_placeholders.yaml")
-
 # ───── Pipeline ─────────────────────────────────────────
-def run_pipeline(excel_path: str, out_doc: str):
+def run_pipeline(excel_path: str, out_doc: str, config_dir: str):
+    # ───── 读取配置 ───────────────────────────────────────────
+    # 每张 Sheet 抽取任务
+    sheet_cfg   = load_yaml(config_dir, "sheet_tasks.yaml")
+    # 段落生成任务
+    paragraphs  = load_yaml(config_dir, "paragraph_tasks.yaml")
+    placeholder_map = load_yaml(config_dir, "doc_placeholders.yaml")
+    
     xls = pd.ExcelFile(excel_path)
     # 全局嵌套 {Sheet: {field: val}}
     extracted = {}
@@ -100,7 +101,7 @@ def run_pipeline(excel_path: str, out_doc: str):
         para_out[pid].append(generator.generate())
 
     # 3) 写入 Word
-    write_docx(para_out, out_doc)
+    write_docx(placeholder_map, para_out, out_doc)
     print(f"✓ 已生成报告：{out_doc}")
 
 # ───── CLI ──────────────────────────────────────────────
@@ -108,9 +109,10 @@ if __name__ == "__main__":
     if "DASHSCOPE_API_KEY" not in os.environ:
         sys.exit("✗ 请先 set DASHSCOPE_API_KEY=sk-...")
     import argparse
-    ap = argparse.ArgumentParser(description="药学报告流水线")
+    ap = argparse.ArgumentParser(description="自动生成报告流水线")
     ap.add_argument("excel", help="原始 Excel 路径")
     ap.add_argument("-o", "--out", default="report_out.docx", help="输出 Word 文件名")
+    ap.add_argument("-c", "--config", default="configs", help="配置文件目录")
     args = ap.parse_args()
 
-    run_pipeline(args.excel, args.out)
+    run_pipeline(args.excel, args.out, args.config)
