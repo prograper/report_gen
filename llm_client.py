@@ -2,11 +2,11 @@
 import os, yaml, openai
 from pathlib import Path
 
-_CFG = yaml.safe_load(Path("configs/llm.yaml").read_text(encoding="utf-8"))
 # provider → (client, model_name)
 _clients: dict[str, tuple[openai.OpenAI, str]] = {}
 
-def apply_provider(name: str = "openai") -> tuple[openai.OpenAI, str]:
+def apply_provider(name: str = "openai", config_dir: Path = Path("")) -> tuple[openai.OpenAI, str]:
+    _CFG = yaml.safe_load((config_dir / "business_configs" / "llm.yaml").read_text(encoding="utf-8"))
     """
     返回 (client, model_name) 供调用。
     - client  已按 base_url / key / extra 初始化
@@ -17,7 +17,7 @@ def apply_provider(name: str = "openai") -> tuple[openai.OpenAI, str]:
         return _clients[name]
 
     if name not in _CFG:
-        raise KeyError(f"provider {name!r} not in configs/llm.yaml")
+        raise KeyError(f"provider {name!r} not in {config_dir.name}/configs/llm.yaml")
 
     cfg       = _CFG[name]
     api_key   = os.getenv(cfg["key_env"], "")

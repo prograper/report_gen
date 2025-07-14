@@ -9,11 +9,11 @@ class GenericParagraphGenerator:
     prompt_path + context  → 段落文本
     """
 
-    def __init__(self, prompt_path: str, context: dict, provider: str | None = None):
+    def __init__(self, prompt_path: str, context: dict, provider: str | None = None, config_dir: str = ""):
         self.prompt_path = prompt_path
         self.context     = context
         provider         = provider or os.getenv("LLM_PROVIDER", "openai")
-        self.client, self.model_name = apply_provider(provider)
+        self.client, self.model_name = apply_provider(provider, config_dir)
 
     # ---------- core ----------
     def generate(self) -> str:

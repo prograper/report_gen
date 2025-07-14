@@ -21,13 +21,13 @@ class GenericExtractor:
     provider 缺省看环境变量 LLM_PROVIDER，默认 openai
     """
 
-    def __init__(self, df, keys: dict, prompt_path: str | Path, provider: str | None = None):
+    def __init__(self, df, keys: dict, prompt_path: str | Path, provider: str | None = None, config_dir: Path = Path("")):
         self.df          = df
         self.keys        = keys
         self.prompt_path = Path(prompt_path)
         provider         = provider or os.getenv("LLM_PROVIDER", "openai")
         # 👈 获取 client
-        self.client, self.model_name = apply_provider(provider)
+        self.client, self.model_name = apply_provider(provider, config_dir)
 
     # ---------- helpers ----------
     def _build_schema(self):
