@@ -47,10 +47,23 @@ class GenericExtractor:
     def extract(self) -> dict:
         prompt  = self._render_prompt()
         schema  = self._build_schema()
+
+        tools = [
+            {
+                "type": "function",
+                "function": schema
+            }
+        ]
+        tool_choices = {"type": "function", "function": {"name": "extract"}}
         resp = self.client.chat.completions.create(
             model         = self.model_name,
             messages      = [{"role": "system", "content": prompt}],
-            functions     = [schema],
-            function_call = {"name": "extract"},
+            tools         = tools,
+            tool_choice  = tool_choices,
         )
-        return json.loads(resp.choices[0].message.function_call.arguments)
+        # 返回第一个工具调用的参数
+        if resp.choices[0].message.tool_calls:
+            # 遍历所有的工具调用
+            for tool_call in resp.choices[0].message.tool_calls:
+                arguments = json.loads(tool_call.function.arguments)
+                return arguments
