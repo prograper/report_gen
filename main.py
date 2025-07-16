@@ -5,7 +5,7 @@
 
 import os, sys, yaml, pandas as pd
 from pathlib import Path
-from docx import Document
+from docxtpl import DocxTemplate
 from agents.registry import get_extractor
 from agents.generate import get_generator
 
@@ -25,17 +25,9 @@ def read_prompt(path: str):
     return (ROOT / path).read_text(encoding="utf-8")
 
 def write_docx(config_dir: str, report_name:str, placeholder_map: dict, paragraph_map: dict):
-    doc = Document(config_dir / "template" / "report_template.docx")
-    for para_id, texts in paragraph_map.items():
-        placeholder = "{{" + placeholder_map[para_id] + "}}"
-        for p in doc.paragraphs:
-            if placeholder in p.text:
-                p.text = p.text.replace(placeholder, "")
-                for seg in texts:
-                    run = p.add_run(seg)
-                    run.add_break()
-                break
-    doc.save(config_dir / "output" / (report_name + ".docx"))
+    tpl = DocxTemplate(config_dir / "template" / "report_template.docx")
+    tpl.render(paragraph_map)
+    tpl.save(config_dir / "output" / (report_name + ".docx"))
 
 # -------- 路径解析工具 --------
 def resolve(path: str, data: dict):
@@ -95,23 +87,14 @@ def run_pipeline(config_dir: str, report_name: str):
             config_dir  = config_dir,
             provider = "qwen"
         )
-        # extracted.update(extractor.extract())
-        # extractor.extract() 仍返回 {"Tmax":..., "Cmax":...}
+
         extracted[sheet] = extractor.extract()
 
     # 2) 生成段落
     para_out = {pid: [] for pid in paragraphs}
     for pid, task in paragraphs.items():
-        # 取所需字段
-        # ctx = {k: extracted.get(k) for k in task["keys"]}
-        # if None in ctx.values():
-        #     print(f"⚠️  段落 {pid} 缺字段，已跳过")
-        #     continue
-        # generator = get_generator("GenericParagraphGenerator")(
-        #     prompt_path = task["prompt"],
-        #     context     = ctx,
 
-        # 只做存在性检查；模板里直接通过 data.<Sheet>.<Field> 访问
+        # 只做存在性检查；模板里直接通过 <Sheet>.<Field> 访问
         missing = [k for k in task["keys"] if resolve(k, extracted) is None]
         if missing:
             print(f"⚠️  段落 {pid} 缺字段 {missing}，已跳过")
@@ -119,11 +102,13 @@ def run_pipeline(config_dir: str, report_name: str):
         generator = get_generator("GenericParagraphGenerator")(
             prompt_path = config_dir / "prompts" / task["prompt"],
             # ← 只放一层 data，如果在prompt里不想加data前缀，可以context = extracted
-            context     = {"data": extracted},
+            # context     = {"data": extracted},
+            context = extracted,
             config_dir = config_dir,
             provider = "qwen"
         )
-        para_out[pid].append(generator.generate())
+
+        para_out[pid] = generator.generate()
 
     # 3) 写入 Word
     write_docx(config_dir, report_name, placeholder_map, para_out)
@@ -135,8 +120,6 @@ if __name__ == "__main__":
         sys.exit("✗ 请先 set DASHSCOPE_API_KEY=sk-...")
     import argparse
     ap = argparse.ArgumentParser(description="自动生成报告流水线")
-    # ap.add_argument("excel", help="原始 Excel 路径")
-    # ap.add_argument("-o", "--out", default="report_out.docx", help="输出 Word 文件名")
     ap.add_argument("-c", "--config", default="configs", help="配置文件目录")
     ap.add_argument("-n", "--name", default="生成报告文件", help="报告名称")
     args = ap.parse_args()
