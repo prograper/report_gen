@@ -24,10 +24,13 @@ def load_yaml(cfg_dir: str, fname: str):
 def read_prompt(path: str):
     return (ROOT / path).read_text(encoding="utf-8")
 
-def write_docx(config_dir: str, report_name:str, placeholder_map: dict, paragraph_map: dict):
+def write_docx(config_dir: str, report_name:str, paragraph_map: dict):
     tpl = DocxTemplate(config_dir / "template" / "report_template.docx")
     tpl.render(paragraph_map)
-    tpl.save(config_dir / "output" / (report_name + ".docx"))
+    # tpl.save(config_dir / "output" / (report_name + ".docx"))
+    out_dir = config_dir / "output"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    tpl.save(out_dir / (report_name + ".docx"))
 
 # -------- 路径解析工具 --------
 def resolve(path: str, data: dict):
@@ -111,7 +114,7 @@ def run_pipeline(config_dir: str, report_name: str):
         para_out[pid] = generator.generate()
 
     # 3) 写入 Word
-    write_docx(config_dir, report_name, placeholder_map, para_out)
+    write_docx(config_dir, report_name, para_out)
     print(f"✓ 已生成报告：{config_dir / 'output' / (report_name + '.docx')}")
 
 # ───── CLI ──────────────────────────────────────────────
