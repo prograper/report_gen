@@ -8,6 +8,7 @@ from pathlib import Path
 from docxtpl import DocxTemplate
 from agents.registry import get_extractor
 from agents.generate import get_generator
+import logging
 
 # ───── 目录常量 ───────────────────────────────────────────
 ROOT       = Path(__file__).parent
@@ -15,6 +16,7 @@ ROOT       = Path(__file__).parent
 CFG_DIR   = ROOT
 PROMPT_DIR = ROOT / "prompts"
 TPL_DIR    = ROOT / "templates"
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 # ───── 实用函数 ───────────────────────────────────────────
 def load_yaml(cfg_dir: str, fname: str):
@@ -90,8 +92,10 @@ def run_pipeline(config_dir: str, report_name: str):
             config_dir  = config_dir,
             provider = "qwen"
         )
-
-        extracted[sheet] = extractor.extract()
+        extract_item = extractor.extract()
+        # 将抽取结果存入全局字典
+        extracted[sheet] = extract_item
+        logging.info(f"已从 {sheet} 抽取数据：{extract_item}")
 
     # 2) 生成段落
     para_out = {pid: [] for pid in paragraphs}
@@ -110,8 +114,9 @@ def run_pipeline(config_dir: str, report_name: str):
             config_dir = config_dir,
             provider = "qwen"
         )
-
-        para_out[pid] = generator.generate()
+        generate_item = generator.generate()
+        para_out[pid] = generate_item
+        logging.info(f"已生成段落 {pid}：{generate_item}")
 
     # 3) 写入 Word
     write_docx(config_dir, report_name, para_out)
